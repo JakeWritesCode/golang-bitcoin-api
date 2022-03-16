@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"golang-bitcoin-api/api"
+	"golang-bitcoin-api/database"
 	"golang-bitcoin-api/file_parser"
 	"log"
 	"net/http"
@@ -29,6 +30,8 @@ func handleRequests() {
 }
 
 func main() {
+	database.InitDB()
+
 	parse_flag := flag.String("parse", "none", "Parse an incoming dataset")
 	flag.Parse()
 

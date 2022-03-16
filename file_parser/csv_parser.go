@@ -5,6 +5,7 @@ package file_parser
 import (
 	"encoding/csv"
 	"fmt"
+	"golang-bitcoin-api/database"
 	"io"
 	"log"
 	"math"
@@ -13,17 +14,6 @@ import (
 	"strings"
 	"time"
 )
-
-// PriceData is a struct to represent each line in the import csv file.
-type PriceData struct {
-	Timestamp      time.Time `csv:"Timestamp"`
-	Open           float64   `csv:"Open"`
-	High           float64   `csv:"High"`
-	Low            float64   `csv:"Low"`
-	VolumeBTC      float64   `csv:"Volume_(BTC)"`
-	VolumeCurrency float64   `csv:"Volume_(Currency)"`
-	WeightedPrice  float64   `csv:"Weighted_Price"`
-}
 
 // ParseCSV with parse a csv file from the entered path and add historical bitcoin price data to the DB.
 func ParseCSV(filename string) {
@@ -53,16 +43,23 @@ func ParseCSV(filename string) {
 		}
 
 		// Parse to struct
-		var parsedObject = PriceData{
+		var parsedObject = database.PriceData{
 			Timestamp:      ParseUnixTimestamp(record[0]),
 			Open:           ParseFloat(record[1]),
 			High:           ParseFloat(record[2]),
 			Low:            ParseFloat(record[3]),
-			VolumeBTC:      ParseFloat(record[4]),
-			VolumeCurrency: ParseFloat(record[5]),
-			WeightedPrice:  ParseFloat(record[6]),
+			Close:          ParseFloat(record[4]),
+			VolumeBTC:      ParseFloat(record[5]),
+			VolumeCurrency: ParseFloat(record[6]),
+			WeightedPrice:  ParseFloat(record[7]),
 		}
 
+		exists, id := database.CheckForBTCPriceRecord(parsedObject.Timestamp)
+		if exists {
+			fmt.Println("Exists!")
+		} else {
+			fmt.Println("New Record!" + string(rune(id)))
+		}
 		fmt.Println(record)
 		fmt.Println(parsedObject)
 	}

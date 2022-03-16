@@ -2,6 +2,8 @@ package api
 
 import (
 	"fmt"
+	"golang-bitcoin-api/config"
+	"golang-bitcoin-api/utils"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -31,7 +33,7 @@ func DownloadHistoricalData(w http.ResponseWriter, r *http.Request) {
 	const base_download_url = "https://min-api.cryptocompare.com/data/v2/histominute?fsym=BTC&tsym=GBP&limit=2000&" +
 		"toTs={time_to}&api_key={api_key}"
 	const base_epoch string = "1647359128"
-	var download_url string = fstring(base_download_url, "time_to", base_epoch, "api_key", CRYPTOCOMPARE_API_KEY)
+	var download_url string = utils.FString(base_download_url, "time_to", base_epoch, "api_key", config.CRYPTOCOMPARE_API_KEY)
 
 	response, _ := http.Get(download_url)
 	body, _ := ioutil.ReadAll(response.Body)
