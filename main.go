@@ -8,6 +8,7 @@ package main
 
 import (
 	"fmt"
+	"golang-bitcoin-api/api"
 	"log"
 	"net/http"
 )
@@ -21,9 +22,11 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 // handleRequests is the main requests handler for our API.
 func handleRequests() {
 	http.HandleFunc("/", homePage)
+	http.HandleFunc("/download", api.DownloadHistoricalData)
 	log.Fatal(http.ListenAndServe(":10000", nil))
 }
 
 func main() {
+	fmt.Println("Starting web server on port 10000...")
 	handleRequests()
 }
