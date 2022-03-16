@@ -7,8 +7,10 @@ proper API key.
 package main
 
 import (
+	"flag"
 	"fmt"
 	"golang-bitcoin-api/api"
+	"golang-bitcoin-api/file_parser"
 	"log"
 	"net/http"
 )
@@ -27,6 +29,13 @@ func handleRequests() {
 }
 
 func main() {
-	fmt.Println("Starting web server on port 10000...")
-	handleRequests()
+	parse_flag := flag.String("parse", "none", "Parse an incoming dataset")
+	flag.Parse()
+
+	if *parse_flag != "none" {
+		file_parser.ParseCSV(*parse_flag)
+	} else {
+		fmt.Println("Starting web server on port 10000...")
+		handleRequests()
+	}
 }
