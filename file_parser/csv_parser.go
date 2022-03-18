@@ -59,9 +59,9 @@ func ParseCSV(filename string) {
 			fmt.Println("Exists!")
 		} else {
 			fmt.Println("New Record!" + string(rune(id)))
+			id := database.AddNewBTCPriceRecord(parsedObject)
+			fmt.Println("Woop woop, inserted new record, id:" + strconv.FormatInt(int64(id), 10))
 		}
-		fmt.Println(record)
-		fmt.Println(parsedObject)
 	}
 }
 
