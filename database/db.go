@@ -42,7 +42,7 @@ func CheckForBTCPriceRecord(time time.Time) (bool, int) {
 	}
 }
 
-// Adds a new BTC price record. Returns the id of the new record.
+// Adds a new BTC price record.
 func AddNewBTCPriceRecord(record PriceData) {
 	statement := `
 		INSERT INTO historical_btc_data
@@ -54,9 +54,9 @@ func AddNewBTCPriceRecord(record PriceData) {
 				);
 	`
 
-	db.NamedExec(statement, record)
-	//if err != nil {
-	//	fmt.Println(err.Error())
-	//	os.Exit(1)
-	//}
+	_, err := db.NamedExec(statement, record)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 }
