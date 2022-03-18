@@ -43,15 +43,20 @@ func CheckForBTCPriceRecord(time time.Time) (bool, int) {
 }
 
 // Adds a new BTC price record. Returns the id of the new record.
-func AddNewBTCPriceRecord(record PriceData) int {
-	stmt, err := db.PrepareNamed("INSERT INTO historical_btc_data (timestamp, open, high, low, close, volume_btc, volume_currency, weighted_price) " +
-		"VALUES (:timestamp, :open, :high, :low, :close, :volumebtc, :volumecurrency, :weightedprice) RETURNING id",
-	)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-	lastInsertId := 0
-	stmt.Get(&lastInsertId, record)
-	return lastInsertId
+func AddNewBTCPriceRecord(record PriceData) {
+	statement := `
+		INSERT INTO historical_btc_data
+		(timestamp, open, high, low, close, volume_btc, volume_currency, weighted_price)
+		SELECT :timestamp, :open, :high, :low, :close, :volumebtc, :volumecurrency, :weightedprice
+		WHERE
+			NOT EXISTS (
+					SELECT timestamp FROM historical_btc_data WHERE timestamp = :timestamp
+				);
+	`
+
+	db.NamedExec(statement, record)
+	//if err != nil {
+	//	fmt.Println(err.Error())
+	//	os.Exit(1)
+	//}
 }
