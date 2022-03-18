@@ -14,3 +14,4 @@ To use:
 ## Running the API
 To run the API:
  - Run the compiled code with no flags. The server will start at port 10000.
+ 
