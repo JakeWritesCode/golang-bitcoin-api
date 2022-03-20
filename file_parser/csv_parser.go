@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// ParseCSV with parse a csv file from the entered path and add historical bitcoin price data to the DB.
+// ParseCSV will parse a csv file from the entered path and add historical bitcoin price data to the DB.
 func ParseCSV(filename string) {
 	// Open the csv file
 	fmt.Println("Parsing csv at " + filename)
@@ -33,7 +33,7 @@ func ParseCSV(filename string) {
 		}
 
 		// Skip first row
-		if record[0] == "Timestamp" {
+		if record[0] == "Timestamp" || record[0] == "Date" {
 			continue
 		}
 
@@ -44,17 +44,16 @@ func ParseCSV(filename string) {
 
 		// Parse to struct
 		var parsedObject = database.PriceData{
-			Timestamp:      ParseUnixTimestamp(record[0]),
-			Open:           ParseFloat(record[1]),
-			High:           ParseFloat(record[2]),
-			Low:            ParseFloat(record[3]),
-			Close:          ParseFloat(record[4]),
-			VolumeBTC:      ParseFloat(record[5]),
-			VolumeCurrency: ParseFloat(record[6]),
-			WeightedPrice:  ParseFloat(record[7]),
+			Timestamp: ParseTimestamp(record[0]),
+			Open:      ParseFloat(record[1]),
+			High:      ParseFloat(record[2]),
+			Low:       ParseFloat(record[3]),
+			Close:     ParseFloat(record[4]),
+			VolumeBTC: ParseFloat(record[5]),
 		}
 		database.AddNewBTCPriceRecord(parsedObject)
 	}
+	fmt.Println("Finished parsing all records.")
 }
 
 // ParseFloat parses an input string to float64 with error handling.
@@ -62,14 +61,24 @@ func ParseFloat(inputString string) float64 {
 	output, err := strconv.ParseFloat(inputString, 64)
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
 	return output
 }
 
-// ParseUnixTimestamp parses an input string to time.Time with error handling.
-func ParseUnixTimestamp(inputString string) time.Time {
+// ParseTimestamp parses an input string to time.Time with error handling.
+func ParseTimestamp(inputString string) time.Time {
 	int_input, err := strconv.ParseInt(inputString, 10, 64)
 	if err != nil {
+		// Not an int, check for date string.
+		if strings.Contains(err.Error(), "invalid syntax") {
+			time, err := time.Parse("02/01/2006, 15:04:05", inputString)
+			if err != nil {
+				log.Fatal(err.Error())
+				os.Exit(1)
+			}
+			return time
+		}
 		log.Fatal(err)
 	}
 	output := time.Unix(int_input, 0)

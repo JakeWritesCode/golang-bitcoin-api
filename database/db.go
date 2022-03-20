@@ -42,7 +42,7 @@ func CheckForBTCPriceRecord(time time.Time) (bool, int) {
 	}
 }
 
-// Adds a new BTC price record.
+// AddNewBTCPriceRecord adds a new BTC price record.
 func AddNewBTCPriceRecord(record PriceData) {
 	statement := `
 		INSERT INTO historical_btc_data
@@ -59,4 +59,28 @@ func AddNewBTCPriceRecord(record PriceData) {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+}
+
+// GetLatestBTCPriceRecordTimestamp gets the latest BTC price record timestamp as Unix.
+func GetLatestBTCPriceRecordTimestamp() int64 {
+	var timestamp = time.Time{}
+	db.Get(&timestamp, "SELECT timestamp FROM historical_btc_data ORDER BY timestamp DESC LIMIT 1")
+	fmt.Println("Latest DB time is " + timestamp.String())
+	return timestamp.Unix()
+}
+
+// FetchBTCDataBetweenTimestamps fetches bitcoin price data between two timestamps.
+// Returns []PriceData
+func FetchBTCDataBetweenTimestamps(fromTime time.Time, toTime time.Time) []PriceData {
+	records := []PriceData{}
+	fmt.Println(fromTime, toTime)
+	err := db.Select(&records, `SELECT timestamp, open, high, close, low, volume_btc from historical_btc_data
+		WHERE timestamp BETWEEN $1 AND $2`, fromTime, toTime)
+	fmt.Println(len(records))
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	fmt.Println(fmt.Sprintf("%s records fetched.", len(records)))
+	return records
 }

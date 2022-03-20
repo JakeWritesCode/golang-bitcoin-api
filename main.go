@@ -26,6 +26,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 func handleRequests() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/download", api.DownloadHistoricalData)
+	http.HandleFunc("/get-btc-data", api.GetBTCPriceHistoryData)
 	log.Fatal(http.ListenAndServe(":10000", nil))
 }
 
